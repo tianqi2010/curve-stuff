@@ -4,8 +4,8 @@ public class Main {
     public static final double theta = 60; 
     public static double beta = 45;
     public static double robotVelocity = 2; //m/s
-    public static double distance = 1; //m
-    public static double tolerance = 0.01;
+    public static double distance = 4; //m
+    public static double tolerance = 0.001;
     public static double workingVelocity;
     public static double workingAlpha;
 
@@ -18,56 +18,54 @@ public class Main {
         
         Test test = new Test();
 
-        // for (int i = 0; i < maxAngle; i++){
-        //     double v0 = test.calculateTrajectory(i, 4);
-        //     if (!Double.isNaN(v0)){
-        //         System.out.println(i + "," + v0);
-        //     }
-        // }
-       
-        //60 5.92154343146653
-
-        // alpha = test.calculateAlpha(robotVelocity, shooterVelocity, beta, theta);
-        // System.out.println(alpha);
-
-        // velocity = test.calculateVelocity(robotVelocity, alpha, beta, theta, distance, shooterVelocity);
-        // System.out.println(velocity);
-
-        
-        System.out.println("velocity:" + velocity);
-
-        alpha = test.calculateAlpha(robotVelocity, velocity, beta, theta);
-
-        System.out.println("alpha:" + alpha);
-        
-        newVelocity = test.calculateVelocity(robotVelocity, newAlpha, beta, theta, distance, velocity);
-        newVelocity = newVelocity * 0.2 + velocity * 0.8;
-
-        System.out.println("newVelocity:" + newVelocity);
-
-        newAlpha = test.calculateAlpha(robotVelocity, newVelocity, beta, theta);
-
-        System.out.println("newAlpha:" + newAlpha);
-
-        for (int i = 0; i < 50; i++){
-
-            alpha = newAlpha;
-            velocity = newVelocity;
-
-            newVelocity = test.calculateVelocity(robotVelocity, newAlpha, beta, theta, distance, velocity);
-            newVelocity = newVelocity * 0.2 + velocity * 0.8;
-            newAlpha = test.calculateAlpha(robotVelocity, newVelocity, beta, theta);
-
-            if (!Double.isNaN(newVelocity)){
-                System.out.println("newVelocity:" + i + " " + newVelocity);
-                System.out.println("newAlpha:" + i + " " + Math.toDegrees(newAlpha));
-                workingAlpha = newAlpha;
-                workingVelocity = newVelocity;
+        // testing curve w/o movement
+        /*for (int i = 0; i < maxAngle; i++){
+            double v0 = test.calculateTrajectory(i, 4);
+            if (!Double.isNaN(v0)){
+                System.out.println(i + "," + v0);
             }
         }
+       
+        alpha = test.calculateAlpha(robotVelocity, shooterVelocity, beta, theta);
+        System.out.println(alpha);
 
-        System.out.println("Final velocity = " + workingVelocity);
-        System.out.println("Final alpha = " + Math.toDegrees(workingAlpha));   
+        velocity = test.calculateVelocity(robotVelocity, alpha, beta, theta, distance, shooterVelocity);
+        System.out.println(velocity);
+        */
 
+        // testing movement
+        double[] ans = test.solveMovingShot(distance, theta, robotVelocity, beta, tolerance, 5);
+        double alpha = ans[0];        // radians
+        double shooterVelocity = ans[1]; // m/s
+        double timeOfFlight = ans[2]; // seconds
+        
+        // Display results
+        System.out.println("\nSolutions:");
+        System.out.printf("Turret Angle (α): %.2f°\n", Math.toDegrees(alpha));
+        System.out.printf("Shooter Velocity: %.3f m/s\n", shooterVelocity);
+        System.out.printf("Time of Flight: %.3f s\n", timeOfFlight);
+        
+        
+        //polynomial regression
+        /*double[][] testShooterData = {
+            // meters, degrees
+            {1.0, 12.1},
+            {2.0, 22.0},
+            {3.0, 36.9},    
+            {4.0, 57.1},
+            {5.0, 82.0}
+        };
+
+        System.out.println("test: Cubic Polynomial");
+        PolynomialRegression model = new PolynomialRegression(testShooterData, 3);
+    
+        System.out.println("Model: " + model.toString());
+        System.out.printf("R² Score: %.4f%n", model.R2());
+
+        System.out.println("\nPredictions:");
+        System.out.println("  At 1.5m: " + model.predict(1.5) + "°");
+        System.out.println("  At 2.5m: " + model.predict(2.5) + "°");
+        System.out.println("  At 3.5m: " + model.predict(3.5) + "°");
+        System.out.println("  At 4.5m: " + model.predict(4.5) + "°");*/
     }
 }
