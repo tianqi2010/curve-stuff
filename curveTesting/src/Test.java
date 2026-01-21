@@ -1,3 +1,5 @@
+import java.nio.channels.Pipe.SinkChannel;
+
 public class Test {
 
     //y difference should be from top of shooter to height of hub
@@ -6,82 +8,7 @@ public class Test {
     public final double y = HUB_HEIGHT - SHOOTER_HEIGHT;
     public final double g = 9.81;
 
-
-    /**
-     * Tries to get the values to converge, thus iterating through the two equations
-     * increases velocity when alpha, newvelocity, time, etc. are bad
-     * @param distance Distance to target (m)
-     * @param thetaDeg Launch angle (degrees)
-     * @param robotVelocity Robot speed (m/s)
-     * @param betaDeg Angle between robot velocity and line to target (degrees)
-     * @param tolerance Convergence tolerance for velocity (m/s)
-     * @param maxIterations Maximum number of iterations
-     * @return double[3] where [0]=alpha (radians), [1]=shooterVelocity (m/s), [2]=timeOfFlight (s)
-     */
-    public double[] solveMovingShot(double distance, double thetaDeg, 
-                                   double robotVelocity, double betaDeg,
-                                   double tolerance, int maxIterations) {
-        
-        // Uses robotVelocity = 0 as an initial guess 
-        double shooterVelocity = calculateTrajectory((int)thetaDeg, distance);
-        if (Double.isNaN(shooterVelocity)) {
-            shooterVelocity = 10.0; // fallback
-        }
-        
-        double alpha = 0.0;
-        double prevVelocity, prevAlpha;
-        boolean converged = false;
-        
-        for (int i = 0; i < maxIterations; i++) {
-            prevVelocity = shooterVelocity;
-            prevAlpha = alpha;
-            
-            alpha = calculateAlpha(robotVelocity, shooterVelocity, betaDeg, thetaDeg);
-
-            if (Double.isNaN(alpha) || Math.abs(alpha) > Math.PI/2) {
-                shooterVelocity *= 1.1; 
-                continue;
-            }
-            
-            double time = time(thetaDeg, shooterVelocity);
-            if (Double.isNaN(time) || time <= 0) {
-                shooterVelocity *= 1.1; 
-                continue;
-            }
-            
-            double newVelocity = calculateVelocity(robotVelocity, alpha, betaDeg, thetaDeg, distance, shooterVelocity);
-            
-            if (Double.isNaN(newVelocity) || newVelocity <= 0) {
-                shooterVelocity *= 1.1;
-                continue;
-            }
-            
-            shooterVelocity = 0.2 * newVelocity + 0.8 * shooterVelocity;
-            
-            double velocityDiff = Math.abs(shooterVelocity - prevVelocity);
-            double alphaDiff = Math.abs(alpha - prevAlpha);
-            
-            if (velocityDiff < tolerance && alphaDiff < Math.toRadians(0.1)) {
-                converged = true;
-                break;
-            }
-            
-            if (shooterVelocity > 100) {
-                System.err.println("Velocity too high; not plausable");
-                break;
-            }
-        }
-        
-        if (!converged) {
-            System.err.println("didn't fully converge");
-        }
-        
-        // Calculate final time of flight
-        double finalTime = time(thetaDeg, shooterVelocity);
-        
-        return new double[]{alpha, shooterVelocity, finalTime};
-    }
-    
+ 
     public double calculateTrajectory(int thetad, double d){
 
         double initialVelocity;
@@ -94,20 +21,97 @@ public class Test {
 
     }
 
-    /*
-    beta - angle from vector of velocity of robot to line from robot to target
-    
-    
+    /**
+    * @param shootingVelocity velocity needed to shoot the ball while robotVelocity = 0, (m/s)
+    * @param robotVelocity robot's velocity (m/s)
+    * @param theta polar angle (degrees)
+    * @param phi azimuthal angle (degrees)
+    * @return double[3], [0] = new velocity (m/s), [1] = new polar angle (degrees), [2] = new azimuthal angle (degrees)
     */
+
+    public double[] calculateMovingShot(double shootingVelocity, double robotVelocity, double theta, double phi){
+
+        double thetar = Math.toRadians(theta);
+        double phir = Math.toRadians(phi);
+
+        double x = shootingVelocity * Math.cos(thetar) - robotVelocity * Math.cos(phir);
+        double y = -robotVelocity * Math.sin(phir);
+        double z = shootingVelocity * Math.sin(thetar);
+
+        double newShootingVelocity = Math.sqrt(x * x + y * y + z * z);
+        // double newTheta = Math.toDegrees(Math.atan(z / x));
+        // double newPhi = Math.toDegrees(Math.atan(y / x));
+        double newTheta = Math.toDegrees(Math.atan2(z, x));
+        double newPhi = Math.toDegrees(Math.atan2(y, x));
+
+        return new double[]{newShootingVelocity, newTheta, newPhi};
+    }
+    
+
+    /**
+     * Tries to get the values to converge, thus iterating through the two equations
+     * increases velocity when alpha, newvelocity, time, etc. are bad
+     * @param distance Distance to target (m)
+     * @param thetaDeg Launch angle (degrees)
+     * @param robotVelocity Robot speed (m/s)
+     * @param betaDeg Angle between robot velocity and line to target (degrees)
+     * @param tolerance Convergence tolerance for velocity (m/s)
+     * @param maxIterations Maximum number of iterations
+     * @return double[3] where [0]=alpha (radians), [1]=shooterVelocity (m/s), [2]=timeOfFlight (s)
+     */
+
+
+    // things that just didnt work... :)
+    /*
+    public double[] solveMovingShot(double distance, double theta,
+                               double robotVelocity, double beta,
+                               double tolerance, double velocity, int maxIterations) {
+    
+    
+        double initialVelocity = velocity;
+        double newVelocity = velocity;
+        double alpha, newAlpha = 0.0;
+
+        for (int i = 0; i < maxIterations; i++){
+
+
+            alpha = calculateAlpha(robotVelocity, initialVelocity, beta, theta);
+            System.out.println("alpha " + i + " " + alpha);
+            
+            System.out.println("time: " + i + " " + time(theta, newVelocity));
+
+            newVelocity = calculateVelocity(robotVelocity, alpha, beta, theta, distance, initialVelocity);
+            newVelocity = newVelocity * 0.3 + initialVelocity * 0.7;
+
+            System.out.println("newVelocity " + i + " " + newVelocity);
+
+            newAlpha = calculateAlpha(robotVelocity, newVelocity, beta, theta);
+
+            System.out.println("newAlpha " + i + " " + newAlpha);
+
+            initialVelocity = newVelocity;
+            alpha = newAlpha;
+        }                        
+    
+        double finalTime = time(theta, newVelocity);
+    
+        return new double[]{newAlpha, newVelocity, finalTime};
+    }
+
     public double calculateAlpha(double robotVelocity, double shooterVelocity, double beta, double theta){
 
-        double alpha;
         double betar = Math.toRadians(beta);
         double thetar = Math.toRadians(theta);
 
-        alpha = Math.asin((robotVelocity * Math.sin(betar)) / (shooterVelocity * Math.cos(thetar)));
+        double sinAlpha = (robotVelocity * Math.sin(betar)) / (shooterVelocity * Math.cos(thetar));
 
-        return alpha;
+        // if (Math.abs(sinAlpha) > 1.0){
+        //     return 0.0;
+        // }
+
+        sinAlpha = Math.max(-1.0, Math.min(1.0, sinAlpha));
+
+        return Math.toDegrees(Math.asin(sinAlpha));
     }   
 
     public double calculateVelocity (double robotVelocity, double alpha, double beta, double theta, double distance, double shooterVelocity){
@@ -144,4 +148,5 @@ public class Test {
 
         return Math.max(timePlus, timeNeg);
     }
+    */
 }
