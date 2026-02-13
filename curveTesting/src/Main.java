@@ -13,10 +13,10 @@ public class Main {
     public static double newVelocity;
 
     // testing
-    public static double phi = 15; // degrees in where the robot is moving. anything phi is robotvelocity related
-    public static double theta = 60; // degrees of shooter. anything theta related is shootingvelocity related
+    public static double phi = 30; // degrees in where the robot is moving. anything phi is robotvelocity related
+    public static double theta = 50; // degrees of shooter. anything theta related is shootingvelocity related
     public static double robotVelocity = 3; // m/s 
-    public static double shooterVelocity = 8; // m/s
+    public static double shooterVelocity = 10; // m/s
 
     public static void main(String[] args) throws Exception {
         
@@ -24,10 +24,13 @@ public class Main {
 
         double ans[] = test.calculateMovingShot(shooterVelocity, robotVelocity, theta, phi);
 
-        System.out.println(ans[0]);
-        System.out.println(ans[1]);
-        System.out.println(ans[2]);
+        System.out.println("shooter velocity: " + ans[0]);
+        System.out.println("new theta: " + ans[1]);
+        System.out.println("new phi: " + ans[2]);
 
+        double testAngle = -730;
+        testAngle = test.wrapAngle(testAngle);
+        System.out.println(testAngle);
     
         // testing curve w/o movement
         /*for (int i = 0; i < maxAngle; i++){

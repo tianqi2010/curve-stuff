@@ -29,8 +29,10 @@ public class Test {
     * @return double[3], [0] = new velocity (m/s), [1] = new polar angle (degrees), [2] = new azimuthal angle (degrees)
     */
 
-    public double[] calculateMovingShot(double shootingVelocity, double robotVelocity, double theta, double phi){
 
+    // subtracts the shootingvelocity vector to robotvelocity vector to get the new velocity vector that hopefully gets the ball in
+    public double[] calculateMovingShot(double shootingVelocity, double robotVelocity, double theta, double phi){
+        
         double thetar = Math.toRadians(theta);
         double phir = Math.toRadians(phi);
 
@@ -45,6 +47,16 @@ public class Test {
         double newPhi = Math.toDegrees(Math.atan2(y, x));
 
         return new double[]{newShootingVelocity, newTheta, newPhi};
+    }
+
+    public double wrapAngle(double angle){
+        angle %= 360.0;
+        if (angle < -180.0) {
+            angle += 360.0;
+        } else if (angle >= 180.0) {
+            angle -= 360.0;
+        }
+        return angle;      
     }
     
 

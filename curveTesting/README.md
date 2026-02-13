@@ -1,18 +1,20 @@
-## Getting Started
+This is all assuming that the turret will always be aligned with the hub, and that we have distance from robot to target.
+would be nice to be able to convert rpm to velocity(m/s). if somehow not then cannot do when velocity /= 0;
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+When robot velocity = 0;
+test hood angle and velocity (rpm)
+for velocity, we could either
+- map that to distance (probably more reliable, will take a bit more testing tho)
+- use projectile motion equation using given hood angle (less reliable)
 
-## Folder Structure
+map the cubic/curve using data points, and use that to determine hood angle and velocity based off of distance 
 
-The workspace contains two folders by default, where:
+When robot velocity /= 0;
+depends on knowing stats from when robot velocity = 0
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+will need 
+angle difference between the vector of robot velocity and vector of robot to hub (phi)
+hood angle when robot velocity = 0;
+shooter velocity when robot velocity = 0
+robot velocity
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
