@@ -1,20 +1,8 @@
 public class Main {
 
-    public static int maxAngle = 90;
-    // public static final double theta = 60; 
-    public static double beta = 45;
-    // public static double robotVelocity = 3; //m/s
-    public static double distance = 2; //m
-    public static double tolerance = 0.1;
-
-    public static double alpha;
-    public static double newAlpha;
-    // public static double velocity = 8; //m/s
-    public static double newVelocity;
-
-    // testing
-    public static double phi = 30; // degrees in where the robot is moving. anything phi is robotvelocity related
-    public static double theta = 50; // degrees of shooter. anything theta related is shootingvelocity related
+    
+    public static double phi = 90; // degrees in where the robot is moving. anything phi is robotvelocity related
+    public static double theta = 10; // degrees of shooter. anything theta related is shootingvelocity related
     public static double robotVelocity = 3; // m/s 
     public static double shooterVelocity = 10; // m/s
 
@@ -28,51 +16,31 @@ public class Main {
         System.out.println("new theta: " + ans[1]);
         System.out.println("new phi: " + ans[2]);
 
-        double testAngle = -730;
-        testAngle = test.wrapAngle(testAngle);
-        System.out.println(testAngle);
-    
-        // testing curve w/o movement
-        /*for (int i = 0; i < maxAngle; i++){
-            double v0 = test.calculateTrajectory(i, 4);
-            if (!Double.isNaN(v0)){
-                System.out.println(i + "," + v0);
-            }
-        }
-       
-        alpha = test.calculateAlpha(robotVelocity, shooterVelocity, beta, theta);
-        System.out.println(alpha);
-
-        velocity = test.calculateVelocity(robotVelocity, alpha, beta, theta, distance, shooterVelocity);
-        System.out.println(velocity);
-        */
-
-        // stuff that didnt work... :P
-        /*
-        // testing movement
-        double[] ans = test.solveMovingShot(distance, theta, robotVelocity, beta, tolerance, velocity, 5);
-        double alpha = ans[0];        // radians
-        double shooterVelocity = ans[1]; // m/s
-        double timeOfFlight = ans[2]; // seconds
-        
-        // Display results
-        System.out.println("Distance: " + distance);
-        System.out.println("RobotVelocity :" + robotVelocity);
-        System.out.println("\nSolutions:");
-        System.out.printf("Turret Angle (α): %.2f°\n", alpha);
-        System.out.printf("Shooter Velocity: %.3f m/s\n", shooterVelocity);
-        System.out.printf("Time of Flight: %.3f s\n", timeOfFlight);
-        */
-        
         //polynomial regression
-        /*double[][] testShooterData = {
+        double[][] testShooterData = {
 
             // meters, degrees
-            {1.0, 12.1},
-            {2.0, 22.0},
-            {3.0, 36.9},    
-            {4.0, 57.1},
-            {5.0, 82.0}
+            // {1.44, 0},
+            // {1.5, 2},
+            // {1.7, 3.5},
+            // {1.94, 4},
+            // {2.1, 5},
+            // {2.52, 6.5},
+            // {3.05, 8.5},
+            // {3.3, 8.8},
+            // {3.6, 9},
+
+
+            {2.1, 1800},
+            {1.5, 1600},
+            {1.44, 1550},
+            {1.94, 1700},
+            {1.7, 1650}, 
+            {2.52, 1850},
+            {3.05, 2000},
+            {3.3, 2100},
+            {3.6, 2200},
+
         };
 
         System.out.println("test: Cubic Polynomial");
@@ -82,9 +50,11 @@ public class Main {
         System.out.printf("R² Score: %.4f%n", model.R2());
 
         System.out.println("\nPredictions:");
-        System.out.println("  At 1.5m: " + model.predict(1.5) + "°");
-        System.out.println("  At 2.5m: " + model.predict(2.5) + "°");
-        System.out.println("  At 3.5m: " + model.predict(3.5) + "°");
-        System.out.println("  At 4.5m: " + model.predict(4.5) + "°");*/
+        System.out.println("  At 1.8m: " + model.predict(1.8) + "°");
+        System.out.println("  At 2.0m: " + model.predict(2.0) + "°");
+        System.out.println("  At 2.3m: " + model.predict(2.3) + "°");
+        System.out.println("  At 2.7m: " + model.predict(2.7) + "°");
+        System.out.println("  At 3.7m: " + model.predict(3.7) + "°");
+
     }
 }
